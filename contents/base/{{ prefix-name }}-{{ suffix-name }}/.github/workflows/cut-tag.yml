@@ -1,0 +1,20 @@
+on:
+  - workflow_dispatch
+
+permissions: write-all
+
+name: 2. Tag & Release
+run-name: Tag & Release by @${{'{'}}{ github.triggering_actor }
+
+jobs:
+  tag_version:
+    name: Tag Version
+    uses: p6m-dev/github-actions/.github/workflows/cut-tag-dotnet-service.yaml@main
+    secrets:
+      ARTIFACTORY_USERNAME: ${{'{'}}{ secrets.ARTIFACTORY_USERNAME }
+      ARTIFACTORY_IDENTITY_TOKEN: ${{'{'}}{ secrets.ARTIFACTORY_IDENTITY_TOKEN }
+      UPDATE_MANIFEST_TOKEN: ${{'{'}}{ secrets.UPDATE_MANIFEST_TOKEN }
+    with:
+      DOTNET_VERSION: "9.0"
+      DOCKER_IMAGE_NAME: {{ prefix-name }}-{{ suffix-name }}-server
+      ARTIFACTORY_REPO: {{ org-name }}-{{ solution-name }}-docker-local/applications

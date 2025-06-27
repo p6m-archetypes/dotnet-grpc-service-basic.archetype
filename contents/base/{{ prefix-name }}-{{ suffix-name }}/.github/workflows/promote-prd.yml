@@ -1,0 +1,20 @@
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to promote'
+        required: true
+
+permissions: write-all
+
+name: 4. Promote Tag to Production
+run-name: Deploy ${{'{'}}{ inputs.tag } to Production by @${{'{'}}{ github.triggering_actor }
+jobs:
+  promote:
+    name: Promote Tag with Digest
+    uses: p6m-dev/github-actions/.github/workflows/promote-tag-with-digest.yaml@main
+    with:
+      target-env: prd
+      tag: ${{'{'}}{ inputs.tag }
+    secrets:
+      TOKEN: ${{'{'}}{ secrets.UPDATE_MANIFEST_TOKEN }
