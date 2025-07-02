@@ -15,7 +15,7 @@ public class EphemeralDatabaseOptions
     /// <summary>
     /// Database name to create
     /// </summary>
-    public string DatabaseName { get; set; } = "project-prefix-project-suffix";
+    public string DatabaseName { get; set; } = "project_prefix_project_suffix";
     
     /// <summary>
     /// PostgreSQL username

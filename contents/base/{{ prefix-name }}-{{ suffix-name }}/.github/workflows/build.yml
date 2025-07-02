@@ -1,24 +1,14 @@
 on:
-  workflow_dispatch:
-    inputs:
-      version-level:
-        description: 'Version bump level'
-        required: true
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-        default: patch
+  - push
+  - workflow_dispatch
 
 permissions: write-all
 
-name: Tag & Release
-run-name: Cut ${{'{'}}{ inputs.version-level } tag by @${{'{'}}{ github.triggering_actor }
+name: Build
 
 jobs:
-  tag_and_release:
-    name: Tag & Release
+  build_and_deploy:
+    name: Build & Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -34,12 +24,6 @@ jobs:
         with:
           credentials: |
             artifactory=${{'{'}}{ secrets.ARTIFACTORY_USERNAME }:${{'{'}}{ secrets.ARTIFACTORY_IDENTITY_TOKEN }
-
-      - name: Cut Tag
-        id: cut-tag
-        uses: p6m-actions/dotnet-cut-tag@v1
-        with:
-          version-level: ${{'{'}}{ inputs.version-level }
 
       - name: Build .NET Application
         uses: p6m-actions/dotnet-build@v1
@@ -59,7 +43,7 @@ jobs:
         uses: p6m-actions/dotnet-docker-publish@v1
         with:
           image-name: {{ prefix-name }}-{{ suffix-name }}-server
-          image-tag: ${{'{'}}{ steps.cut-tag.outputs.version }
+          image-tag: ${{'{'}}{ github.sha }
           registry: {{ org-name }}-{{ solution-name }}-docker-local/applications
           push: true
 
@@ -68,7 +52,7 @@ jobs:
         with:
           repository: ${{'{'}}{ github.repository }
           image-name: {{ prefix-name }}-{{ suffix-name }}-server
-          environment: "prod"
+          environment: "dev"
           digest: ${{'{'}}{ steps.docker-publish.outputs.image-digest }
           update-manifest-token: ${{'{'}}{ secrets.UPDATE_MANIFEST_TOKEN }
           platform-dispatch-url: ${{'{'}}{ vars.PLATFORM_DISPATCH_URL }
