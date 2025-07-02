@@ -24,29 +24,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: p6m-actions/dotnet-setup@v1
+      - name: Setup Python and uv
+        uses: p6m-actions/python-uv-setup@v1
         with:
-          dotnet-version: "9.0"
+          python-version: "3.11"
 
-      - name: Login to .NET Repository
-        uses: p6m-actions/dotnet-repository-login@v1
+      - name: Login to Python Repository
+        uses: p6m-actions/python-uv-repository-login@v1
         with:
-          credentials: |
-            artifactory=${{'{'}}{ secrets.ARTIFACTORY_USERNAME }:${{'{'}}{ secrets.ARTIFACTORY_IDENTITY_TOKEN }
+          repository: artifactory
+          username: ${{'{'}}{ secrets.ARTIFACTORY_USERNAME }
+          password: ${{'{'}}{ secrets.ARTIFACTORY_IDENTITY_TOKEN }
 
       - name: Cut Tag
         id: cut-tag
-        uses: p6m-actions/dotnet-cut-tag@v1
+        uses: p6m-actions/python-uv-cut-tag@v1
         with:
           version-level: ${{'{'}}{ inputs.version-level }
 
-      - name: Build .NET Application
-        uses: p6m-actions/dotnet-build@v1
+      - name: Build Python Application
+        uses: p6m-actions/python-uv-build@v1
         with:
-          dotnet-version: "9.0"
-          configuration: "Release"
+          modules: "{{ prefix-name }}-{{ suffix-name }}-proto {{ prefix-name }}-{{ suffix-name }}-api {{ prefix-name }}-{{ suffix-name }}-core {{ prefix-name }}-{{ suffix-name }}-persistence {{ prefix-name }}-{{ suffix-name }}-server {{ prefix-name }}-{{ suffix-name }}-client"
           run-tests: true
+          version: ${{'{'}}{ steps.cut-tag.outputs.version }
 
       - name: Login to Docker Repository
         uses: p6m-actions/docker-repository-login@v1
@@ -56,12 +57,19 @@ jobs:
 
       - name: Build and Publish Docker Image
         id: docker-publish
-        uses: p6m-actions/dotnet-docker-publish@v1
+        uses: p6m-actions/python-uv-docker-publish@v1
         with:
           image-name: {{ prefix-name }}-{{ suffix-name }}-server
           image-tag: ${{'{'}}{ steps.cut-tag.outputs.version }
           registry: {{ org-name }}-{{ solution-name }}-docker-local/applications
           push: true
+          version: ${{'{'}}{ steps.cut-tag.outputs.version }
+
+      - name: Publish to Python Repository
+        uses: p6m-actions/python-uv-repository-publish@v1
+        with:
+          modules: "{{ prefix-name }}-{{ suffix-name }}-proto {{ prefix-name }}-{{ suffix-name }}-api {{ prefix-name }}-{{ suffix-name }}-core {{ prefix-name }}-{{ suffix-name }}-persistence {{ prefix-name }}-{{ suffix-name }}-server {{ prefix-name }}-{{ suffix-name }}-client"
+          repository: artifactory
 
       - name: Update Application Manifest
         uses: p6m-actions/platform-application-manifest-dispatch@v1
