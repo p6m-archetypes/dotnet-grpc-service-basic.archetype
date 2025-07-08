@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>ProjectPrefixProjectSuffix.Client</PackageId>
-    <Description>ProjectPrefix ProjectSuffix :: Client</Description>
+    <PackageId>{{ PrefixName }}{{ SuffixName }}.Client</PackageId>
+    <Description>{{ PrefixName }} {{ SuffixName }} :: Client</Description>
   </PropertyGroup>
 
   <ItemGroup>

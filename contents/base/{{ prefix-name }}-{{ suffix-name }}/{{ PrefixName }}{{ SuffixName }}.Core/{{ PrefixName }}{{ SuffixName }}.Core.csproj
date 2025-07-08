@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-    <PackageId>ProjectPrefixProjectSuffix.Core</PackageId>
-    <Description>ProjectPrefix ProjectSuffix :: Core</Description>
+    <PackageId>{{ PrefixName }}{{ SuffixName }}.Core</PackageId>
+    <Description>{{ PrefixName }} {{ SuffixName }} :: Core</Description>
   </PropertyGroup>
 
   <ItemGroup>

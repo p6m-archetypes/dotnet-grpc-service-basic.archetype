@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <PackageId>ProjectPrefixProjectSuffix.Server</PackageId>
-    <Description>ProjectPrefix ProjectSuffix :: Server</Description>
+    <PackageId>{{ PrefixName }}{{ SuffixName }}.Server</PackageId>
+    <Description>{{ PrefixName }} {{ SuffixName }} :: Server</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,7 +44,7 @@
 
   <ItemGroup>
     <SonarQubeSetting Include="sonar.coverage.exclusions">
-      <Value>**/ProjectPrefixProjectSuffixServer.cs, **/Startup.cs</Value>
+      <Value>**/{{ PrefixName }}{{ SuffixName }}.cs, **/Startup.cs</Value>
     </SonarQubeSetting>
   </ItemGroup>
 

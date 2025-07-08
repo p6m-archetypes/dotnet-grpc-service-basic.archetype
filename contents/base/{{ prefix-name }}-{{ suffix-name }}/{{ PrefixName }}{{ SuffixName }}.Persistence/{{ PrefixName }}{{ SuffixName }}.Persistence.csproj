@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>ProjectPrefixProjectSuffix.Persistence</PackageId>
-    <Description>ProjectPrefix ProjectSuffix :: Persistence</Description>
+    <PackageId>{{ PrefixName }}{{ SuffixName }}.Persistence</PackageId>
+    <Description>{{ PrefixName }} {{ SuffixName }} :: Persistence</Description>
   </PropertyGroup>
 
   <ItemGroup>
