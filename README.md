@@ -1,12 +1,14 @@
 # .NET gRPC Service Archetype
 
+![Latest Release](https://img.shields.io/github/v/release/p6m-archetypes/dotnet-grpc-service-basic.archetype?style=flat-square&label=Latest%20Release&color=blue)
+
 ## Usage
 
 To get started, [install archetect](https://github.com/p6m-archetypes/development-handbook)
 and render this template to your current working directory:
 
 ```bash
-archetect render git@github.com:p6m-archetypes/dotnet-grpc-service.archetype.git
+archetect render git@github.com:p6m-archetypes/dotnet-grpc-service-basic.archetype.git
 ```
 
 For information about interacting with the service, refer to the README at the generated
@@ -30,6 +32,7 @@ For a list of all derived properties and examples of the property relationships,
 ## What's Inside
 
 Features include:
+
 - Entity Framework Core [EF](https://learn.microsoft.com/en-us/ef/core/)
 - Testcontainers .NET (https://dotnet.testcontainers.org/)
 - Simple CRUD over [gRPC](https://grpc.io/)
