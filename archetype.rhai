@@ -94,5 +94,19 @@ render(Directory("contents/base"), context);
 
 // render(Archetype("manifests"), context["artifact-id"], context);
 
+
+display();
+
+log(Info, "Copy and paste the following commands to publish your Project:");
+
+display();
+
+display(render("cd {{ prefix-name }}-{{ suffix-name }}", context));
+display("git init -b main");
+display(render("gh repo create {{ org-name }}-{{ solution-name }}/{{ prefix-name }}-{{ suffix-name }} --public --source=. --remote=origin", context));
+display("git add .");
+display("git commit -m 'initial commit'");
+display("git push -u origin HEAD");
+
 // Return Context
 context
