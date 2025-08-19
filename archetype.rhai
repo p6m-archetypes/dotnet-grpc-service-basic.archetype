@@ -59,6 +59,15 @@ render(Directory("contents/base"), context);
 
 // render(Archetype("manifests"), context["artifact-id"], context);
 
+//
+// Publishing
+//
+if switch_enabled("zip") {
+  zip(context["project-name"], render("{{ project-name }}.zip", context));
+}
+if switch_enabled("tarball") {
+  tar_gz(context["project-name"], render("{{ project-name }}.tar.gz", context));
+}
 
 if switch_enabled("git-init") || switch_enabled("git-publish") {
   git_init(context["project-name"], "main");
