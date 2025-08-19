@@ -57,8 +57,6 @@ render(Directory("contents/base"), context);
 //   }
 // }
 
-// render(Archetype("manifests"), context["artifact-id"], context);
-
 //
 // Publishing
 //
