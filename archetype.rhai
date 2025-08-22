@@ -24,13 +24,8 @@ context += render(Archetype("project-prompts"), ANSWERS + #{
     ],
 }, render_settings);
 
-context += prompt("Persistence:", "persistence", #{
-  type: Select([
-    "CockroachDB",
-    "None",
-  ]),
-  defaults_with: "CockroachDB",
-});
+// Persistence configuration removed - was causing archetype generation failures.
+// The persistence prompt is now handled by external components (project-prompts).
 
 context += prompt("Solution Name:", "solution-name", #{
   placeholder: "Widgets",
@@ -103,10 +98,10 @@ if switch_enabled("debug-context") {
 
 render(Directory("contents/base"), context);
 
-render(Archetype("manifests"), context["project-name"], context + #{
-  "language": ".NET",
-  "protocol": "gRPC",
-});
+//render(Archetype("manifests"), context["project-name"], context + #{
+//  "language": ".NET",
+//  "protocol": "gRPC",
+//});
 
 //
 // Publishing

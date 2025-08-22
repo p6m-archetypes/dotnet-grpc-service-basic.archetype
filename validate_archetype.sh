@@ -129,9 +129,11 @@ author_full: "$TEST_AUTHOR"
 prefix-name: "$TEST_PREFIX"
 suffix-name: "$TEST_SUFFIX"
 org-name: "$TEST_ORG"
-solution-name: "$TEST_SOLUTION"
-service-port: "$TEST_SERVICE_PORT"
+solution-name: "$TEST_SOLUTION" 
+service-port: "${TEST_SERVICE_PORT}"
+management-port: "${TEST_MANAGEMENT_PORT}"
 artifactory-host: "test.artifactory.example.com"
+persistence: "None"
 
 # Derived variables (auto-calculated by archetype.rhai)
 # org-solution-name: "$TEST_ORG-$TEST_SOLUTION"
@@ -141,7 +143,7 @@ artifactory-host: "test.artifactory.example.com"
 EOF
     
     # Generate the service using render command
-    if archetect render "$SCRIPT_DIR" --answer-file test_answers.yaml "$TEST_SERVICE_NAME" >> "$VALIDATION_LOG" 2>&1; then
+    if archetect render "$SCRIPT_DIR" --answer-file test_answers.yaml -U "$TEST_SERVICE_NAME" >> "$VALIDATION_LOG" 2>&1; then
         test_result 0 "Archetype generation successful"
     else
         test_result 1 "Archetype generation failed"
