@@ -1,0 +1,32 @@
+apiVersion: meta.p6m.dev/v1alpha1
+kind: PlatformApplication
+metadata:
+  name: {{ prefix-name }}-{{ suffix-name }}
+  labels:
+    p6m.dev/app: {{ prefix-name }}-{{ suffix-name }}
+spec:
+  config:
+    GRPC_PORT: "{{ service-port }}"  # Service Port
+    MANAGEMENT_PORT: "{{ management-port }}" # Management Port
+    LOGGING_STRUCTURED: "true"
+    ConnectionStrings__DefaultConnection: "Host=$(postgres_{{ prefix_name }}_{{ suffix_name }}_db_endpoint);Port=$(postgres_{{ prefix_name }}_{{ suffix_name }}_db_port);Database={{ prefix_name }}_{{ suffix_name }}_db;Username=$(postgres_{{ prefix_name }}_{{ suffix_name }}_db_username);Password=$(postgres_{{ prefix_name }}_{{ suffix_name }}_db_password);sslmode=require"
+  resources: 
+    postgres:
+      - name: {{ prefix-name }}-{{ suffix-name }}
+  deployment:
+    image: {{ prefix-name }}-{{ suffix-name }}-server:latest
+    ports:
+      - protocol: grpc
+        port: {{ service-port }}
+      - protocol: http
+        port: {{ management-port }}
+    readinessProbe:
+      port: {{ management-port }}
+      path: /health
+
+  networking:
+    inbound:
+      services:
+        - name: {{ prefix-name }}-{{ suffix-name }}-domain-gateway
+          namespace: {{ prefix-name }}-{{ suffix-name }}-domain-gateway
+          port: {{ service-port }}

@@ -1,5 +1,10 @@
 let context = #{};
 
+// This generally comes from ANSWERS, but prompting for it ensures it is in the context 
+context += prompt("Project Author:", "author_full", #{
+    placeholder: "Your Name <your.name@example.com>",
+});
+
 if switch_enabled("debug-answers") {
     log(Info, archetect::archetype::description() +" Answers:");
     display(as_yaml(ANSWERS));
@@ -27,14 +32,69 @@ context += prompt("Persistence:", "persistence", #{
   defaults_with: "CockroachDB",
 });
 
+context += prompt("Solution Name:", "solution-name", #{
+  placeholder: "Widgets",
+  cased_as: [
+    CasedIdentityCasedValue(PROGRAMMING_CASES),
+    FixedKeyCasedValue("org-title", TitleCase),
+  ],
+  help: "Soltution Name",
+});
+
+context += prompt("Project Prefix:", "prefix-name", #{
+  cased_as: [
+    CasedIdentityCasedValue(PROGRAMMING_CASES),
+    FixedKeyCasedValue("project-title", TitleCase),
+  ],
+  help: "Business Function",
+});
+
+context += prompt("Project Suffix:", "suffix-name", #{
+  defaults_with: "Service",
+  cased_as: [
+    CasedIdentityCasedValue(PROGRAMMING_CASES),
+    FixedKeyCasedValue("suffix-title", TitleCase),
+  ],
+  help: "Project Type",
+});
+
+context += set("org-solution-name", render("{{ org-name }}-{{ solution-name }}", context), #{
+  cases: [
+    CasedIdentityCasedValue(PROGRAMMING_CASES),
+  ],
+});
+
+context += set("project-name", render("{{ prefix-name }}-{{ suffix-name }}", context), #{
+  cases: [
+    CasedIdentityCasedValue(PROGRAMMING_CASES),
+  ],
+});
+
+// context += render(Archetype("java-project-attributes"), ANSWERS + context + #{
+//     "suffix_default": "Service",
+//     "suffix_options": [
+//         "Service",
+//         "Orchestrator",
+//         "Adapter",
+//     ],
+// }, render_settings);
+
+// Persistence configuration removed - was causing archetype generation failures
+// when partially uncommented. If persistence options are needed, implement
+// proper conditional logic for all options including "None" case.
+
 context += prompt("Artifactory Host:", "artifactory-host", #{
   defaults_with: "p6m.jfrog.io",
 });
 
-context += set("service-port", 5030);
-context += set("management-port", context["service-port"] + 1);
-context += set("database-port", 26257);
-context += set("debug-port", context["service-port"] + 9);
+context += prompt("Service Port:", "service-port", #{
+  defaults_with: "5030",
+  help: "gRPC service port for the application",
+});
+
+context += set("management-port", parse_int(context["service-port"]) + 1);
+context += set("database-port", 5432);
+context += set("debug-port", parse_int(context["service-port"]) + 9);
 
 if switch_enabled("debug-context") {
     log(Info, `${archetect::archetype::description()} (${context["project-name"]}) Context:`);

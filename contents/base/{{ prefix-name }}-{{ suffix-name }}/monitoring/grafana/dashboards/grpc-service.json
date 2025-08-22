@@ -1,0 +1,117 @@
+{
+  "id": null,
+  "title": "{{ prefix-name }}-{{ suffix-name }} gRPC Service",
+  "tags": ["grpc", "dotnet"],
+  "style": "dark",
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Request Rate",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(grpc_server_handled_total[5m])",
+          "legendFormat": "RPS"
+        }
+      ],
+      "xAxis": {
+        "show": true
+      },
+      "yAxes": [
+        {
+          "label": "requests/sec",
+          "show": true
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Response Time",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(grpc_server_handling_seconds_bucket[5m]))",
+          "legendFormat": "95th percentile"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(grpc_server_handling_seconds_bucket[5m]))",
+          "legendFormat": "50th percentile"
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "seconds",
+          "show": true
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Error Rate",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(grpc_server_handled_total{grpc_code!=\"OK\"}[5m]) / rate(grpc_server_handled_total[5m])",
+          "legendFormat": "Error Rate"
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "percentage",
+          "show": true
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "id": 4,
+      "title": "Memory Usage",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "dotnet_total_memory_bytes / 1024 / 1024",
+          "legendFormat": "Total Memory (MB)"
+        },
+        {
+          "expr": "dotnet_gc_memory_total_available_bytes / 1024 / 1024",
+          "legendFormat": "Available Memory (MB)"
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "MB",
+          "show": true
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+    }
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "5s"
+}

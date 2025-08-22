@@ -98,8 +98,8 @@ public class {{ PrefixName }}{{ SuffixName }}Server
         try
         {
             var serverAddresses = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>();
-            // Look for the gRPC endpoint (HTTP/2) - should be the one NOT on port 5031
-            var grpcAddress = serverAddresses?.Addresses.FirstOrDefault(addr => !addr.Contains("5031"));
+            // Look for the gRPC endpoint (HTTP/2) - should be the one NOT on management port
+            var grpcAddress = serverAddresses?.Addresses.FirstOrDefault(addr => !addr.Contains("{{ management-port }}"));
             
             if (grpcAddress != null)
             {
@@ -107,11 +107,13 @@ public class {{ PrefixName }}{{ SuffixName }}Server
                 return grpcAddress.Replace("0.0.0.0", "localhost");
             }
             
-            return "http://localhost:5030";
+            // Fallback to configured gRPC port
+            return app.Configuration["Kestrel:Endpoints:Grpc:Url"]?.Replace("0.0.0.0", "localhost") 
+                   ?? "http://localhost:{{ service-port }}";
         }
         catch
         {
-            return "http://localhost:5030";
+            return "http://localhost:{{ service-port }}";
         }
     }
     
