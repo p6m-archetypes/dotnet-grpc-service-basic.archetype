@@ -2,33 +2,34 @@ using Grpc.Core;
 using {{ PrefixName }}{{ SuffixName }}.API;
 using {{ PrefixName }}{{ SuffixName }}.API.Logger;
 using {{ PrefixName }}{{ SuffixName }}.Core.Services;
-using {{ PrefixName }}{{ SuffixName }}.Core.Exceptions;
+using {{ PrefixName }}{{ SuffixName }}.Core.Exceptions;{% if persistence != 'None' %}
 using {{ PrefixName }}{{ SuffixName }}.Persistence.Entities;
 using {{ PrefixName }}{{ SuffixName }}.Persistence.Models;
-using {{ PrefixName }}{{ SuffixName }}.Persistence.Repositories;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+using {{ PrefixName }}{{ SuffixName }}.Persistence.Repositories;{% endif %}
+using Microsoft.Extensions.Logging;{% if persistence != 'None' %}
+using Microsoft.EntityFrameworkCore;{% endif %}
 using System.Diagnostics; 
 
 namespace {{ PrefixName }}{{ SuffixName }}.Core;
 
 public class {{ PrefixName }}{{ SuffixName }}Core : I{{ PrefixName }}{{ SuffixName }}
 {
-    private readonly I{{ PrefixName }}Repository _{{ prefixName }}Repository;
+    {%- if persistence != 'None' %}
+    private readonly I{{ PrefixName }}Repository _{{ prefixName }}Repository;{% endif %}
     private readonly IValidationService _validationService;
     private readonly ILogger<{{ PrefixName }}{{ SuffixName }}Core> _logger;
        
-    public {{ PrefixName }}{{ SuffixName }}Core(
-        I{{ PrefixName }}Repository {{ prefixName }}Repository,
+    public {{ PrefixName }}{{ SuffixName }}Core({% if persistence != 'None' %}
+        I{{ PrefixName }}Repository {{ prefixName }}Repository,{% endif %}
         IValidationService validationService,
         ILogger<{{ PrefixName }}{{ SuffixName }}Core> logger) 
-    {
-        _{{ prefixName }}Repository = {{ prefixName }}Repository;
+    {{'{'}}{% if persistence != 'None' %}
+        _{{ prefixName }}Repository = {{ prefixName }}Repository;{% endif %}
         _validationService = validationService;
         _logger = logger;
     }
     public async Task<Create{{ PrefixName }}Response> Create{{ PrefixName }}({{ PrefixName }}Dto request)
-    {
+    {{'{'}}{% if persistence != 'None' %}
         using var scope = _logger.BeginScope("Operation: {Operation}, Entity: {EntityType}", 
             "Create{{ PrefixName }}", "{{ PrefixName }}");
         
@@ -97,11 +98,20 @@ public class {{ PrefixName }}{{ SuffixName }}Core : I{{ PrefixName }}{{ SuffixNa
             _logger.LogError(ex, "Create{{ PrefixName }} failed for {Name} after {Duration}ms", 
                 request?.Name, stopwatch.ElapsedMilliseconds);
             throw new DataAccessException("Create", "An unexpected error occurred while creating the entity.", ex);
-        }
+        }{% else %}
+          return new Create{{ PrefixName }}Response
+          {
+              {{ PrefixName }} = new {{ PrefixName }}Dto
+              {
+                  Id = request.Id,
+                  Name = request.Name
+              }
+          };
+        {% endif %}
     }
 
     public async Task<Get{{ PrefixName }}sResponse> Get{{ PrefixName }}s(Get{{ PrefixName }}sRequest request)
-    {
+    {{'{'}}{% if persistence != 'None' %}
         using var scope = _logger.BeginScope("Operation: {Operation}, Entity: {EntityType}", 
             "Get{{ PrefixName }}s", "{{ PrefixName }}");
         
@@ -170,11 +180,18 @@ public class {{ PrefixName }}{{ SuffixName }}Core : I{{ PrefixName }}{{ SuffixNa
             _logger.LogError(ex, "Get{{ PrefixName }}s failed for page {StartPage}, size {PageSize} after {Duration}ms", 
                 request?.StartPage, request?.PageSize, stopwatch.ElapsedMilliseconds);
             throw new DataAccessException("Read", "An unexpected error occurred while retrieving entities.", ex);
-        }
+        }{% else %}
+          
+        return new Get{{ PrefixName }}sResponse
+        {
+            TotalElements = 0,
+            TotalPages = 0,
+        };
+        {% endif %}
     }
 
     public async Task<Get{{ PrefixName }}Response> Get{{ PrefixName }}(Get{{ PrefixName }}Request request)
-    {
+    {{''}}{% if persistence != 'None' %}
         using var scope = _logger.BeginScope("Operation: {Operation}, Entity: {EntityType}, Id: {Id}", 
             "Get{{ PrefixName }}", "{{ PrefixName }}", request.Id);
         
@@ -247,11 +264,20 @@ public class {{ PrefixName }}{{ SuffixName }}Core : I{{ PrefixName }}{{ SuffixNa
             _logger.LogError(ex, "Get{{ PrefixName }} failed for {Id} after {Duration}ms", 
                 request?.Id, stopwatch.ElapsedMilliseconds);
             throw new DataAccessException("Read", "An unexpected error occurred while retrieving the entity.", ex);
-        }
+        }{% else %}
+          return new Get{{ PrefixName }}Response
+          {
+              {{ PrefixName }} = new {{ PrefixName }}Dto
+              {
+                  Id = request.Id,
+                  Name = request.Name,
+              }
+          };
+        {% endif %}
     }
 
     public async Task<Update{{ PrefixName }}Response> Update{{ PrefixName }}({{ PrefixName }}Dto {{ prefixName }})
-    {
+    {{'{'}}{% if persistence != 'None' %}
         using var scope = _logger.BeginScope("Operation: {Operation}, Entity: {EntityType}, Id: {Id}", 
             "Update{{ PrefixName }}", "{{ PrefixName }}", {{ prefixName }}.Id);
         
@@ -362,11 +388,19 @@ public class {{ PrefixName }}{{ SuffixName }}Core : I{{ PrefixName }}{{ SuffixNa
             _logger.LogError(ex, "Update{{ PrefixName }} failed for {Id} after {Duration}ms", 
                 {{ prefixName }}?.Id, stopwatch.ElapsedMilliseconds);
             throw new DataAccessException("Update", "An unexpected error occurred while updating the entity.", ex);
-        }
+        }{% else %}
+        return new Update{{ PrefixName }}Response
+        {
+            {{ PrefixName }} = new {{ PrefixName }}Dto
+            {
+                Id = {{ prefixName }}.Id,
+                Name = {{ prefixName }}.Name
+            }
+        };{% endif %}
     }
 
     public async Task<Delete{{ PrefixName }}Response> Delete{{ PrefixName }}(Delete{{ PrefixName }}Request request)
-    {
+    {{''}}{% if persistence != 'None' %}
         using var scope = _logger.BeginScope("Operation: {Operation}, Entity: {EntityType}, Id: {Id}", 
             "Delete{{ PrefixName }}", "{{ PrefixName }}", request.Id);
         
@@ -444,6 +478,8 @@ public class {{ PrefixName }}{{ SuffixName }}Core : I{{ PrefixName }}{{ SuffixNa
                 request?.Id, stopwatch.ElapsedMilliseconds);
             throw new DataAccessException("Delete", "An unexpected error occurred while deleting the entity.", ex);
         }
-    }
+    }{% else %}
     
+    return new Delete{{ PrefixName }}Response { Deleted = false };
+    {% endif %}
 }

@@ -10,9 +10,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{ PrefixName }}{{ SuffixName }}.Core", "{{ PrefixName }}{{ SuffixName }}.Core\{{ PrefixName }}{{ SuffixName }}.Core.csproj", "{37A39F5D-2ABA-4779-9201-56AC0C0270F2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{ PrefixName }}{{ SuffixName }}.Server", "{{ PrefixName }}{{ SuffixName }}.Server\{{ PrefixName }}{{ SuffixName }}.Server.csproj", "{AF0CC9A2-27E2-43AE-A784-E95CBA9977F6}"
-EndProject
+EndProject{% if persistence != 'None' %}
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{ PrefixName }}{{ SuffixName }}.Persistence", "{{ PrefixName }}{{ SuffixName }}.Persistence\{{ PrefixName }}{{ SuffixName }}.Persistence.csproj", "{94244333-98D8-444C-B432-E88F672EC427}"
-EndProject
+EndProject{% endif %}
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{ PrefixName }}{{ SuffixName }}.IntegrationTests", "{{ PrefixName }}{{ SuffixName }}.IntegrationTests\{{ PrefixName }}{{ SuffixName }}.IntegrationTests.csproj", "{5A6ED28E-D8B6-4C69-8695-52E3B45CE49C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{ PrefixName }}{{ SuffixName }}.UnitTests", "{{ PrefixName }}{{ SuffixName }}.UnitTests\{{ PrefixName }}{{ SuffixName }}.UnitTests.csproj", "{F7558732-366A-4981-9A4E-FCA24ADBEA4D}"

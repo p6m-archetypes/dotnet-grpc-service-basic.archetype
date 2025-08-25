@@ -84,7 +84,7 @@ public class Startup
             services.Configure<EphemeralDatabaseOptions>(Configuration.GetSection(EphemeralDatabaseOptions.SectionName));
             services.AddSingleton<EphemeralDatabaseService>();
             services.AddHostedService<EphemeralDatabaseHostedService>();
-        }
+        }{% if Persistence != 'None'}
         
         // Configure database connection
         
@@ -145,19 +145,19 @@ public class Startup
             options.EnableSensitiveDataLogging(false); // Disable in production
         });
 
-        services.AddScoped<I{{ PrefixName }}Repository, {{ PrefixName }}Repository>();
+        services.AddScoped<I{{ PrefixName }}Repository, {{ PrefixName }}Repository>();{% endif %}
         
         
-        // Register health check services
-        services.AddScoped<DatabaseHealthCheck>();
+        // Register health check services{% if persistence != 'None'}
+        services.AddScoped<DatabaseHealthCheck>();{% endif %}
         services.AddScoped<ServiceHealthCheck>();
         
         // Enhanced health checks with dependency validation
-        services.AddHealthChecks()
+        services.AddHealthChecks(){% if Persistence != 'None'}
             .AddCheck<DatabaseHealthCheck>(
                 "database",
                 failureStatus: HealthStatus.Unhealthy,
-                tags: ["ready", "db"])
+                tags: ["ready", "db"]){% endif %}
             .AddCheck<ServiceHealthCheck>(
                 "services",
                 failureStatus: HealthStatus.Unhealthy,
