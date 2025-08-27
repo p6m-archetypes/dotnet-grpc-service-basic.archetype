@@ -58,6 +58,7 @@ jobs:
           push: true
           skip-setup: true
           builder-name: ${{'{'}}{ steps.buildx.outputs.name }}
+          platforms: linux/amd64,linux/arm64
           secrets: |
             artifactory-token=${{'{'}}{ secrets.ARTIFACTORY_TOKEN }}
 
@@ -74,7 +75,7 @@ jobs:
         uses: p6m-actions/platform-application-manifest-dispatch@v1
         with:
           repository: ${{'{'}}{ github.repository }}
-          image-name: {{ prefix-name }}-{{ suffix-name }}-server
+          image-name: {{ prefix-name }}-{{ suffix-name }}
           environment: "dev"
           digest: ${{'{'}}{ steps.docker-publish.outputs.image-digest }}
           update-manifest-token: ${{'{'}}{ secrets.UPDATE_MANIFEST_TOKEN }}
