@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\{{ PrefixName }}{{ SuffixName }}.API\{{ PrefixName }}{{ SuffixName }}.API.csproj" />{% if persistence != 'None' %}
-    <ProjectReference Include="..\{{ PrefixName }}{{ SuffixName }}.Persistence\{{ PrefixName }}{{ SuffixName }}.Persistence.csproj" />{% endif %}
+    <ProjectReference Include="..\{{ PrefixName }}{{ SuffixName }}.API\{{ PrefixName }}{{ SuffixName }}.API.csproj" />
+    <ProjectReference Include="..\{{ PrefixName }}{{ SuffixName }}.Persistence\{{ PrefixName }}{{ SuffixName }}.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

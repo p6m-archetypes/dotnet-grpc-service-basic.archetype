@@ -46,16 +46,21 @@ context += set("management-port", context["service-port"] + 1);
 context += set("database-port", 5432);
 context += set("debug-port", context["service-port"] + 9);
 
+context["API_UUID"] = "{" + uuid().to_upper() + "}";
+context["CLIENT_UUID"] = "{" + uuid().to_upper() + "}";
+context["CORE_UUID"] = "{" + uuid().to_upper() + "}";
+context["PERSISTENCE_UUID"] = "{" + uuid().to_upper() + "}";
+context["SERVER_UUID"] = "{" + uuid().to_upper() + "}";
+context["IT_UUID"] = "{" + uuid().to_upper() + "}";
+context["UT_UUID"] = "{" + uuid().to_upper() + "}";
+
 if switch_enabled("debug-context") {
     log(Info, `${archetect::archetype::description()} (${context["project-name"]}) Context:`);
     display(as_yaml(context));
 }
 
 render(Directory("contents/base"), context);
-
-if context["persistence"] != "None" {
-  render(Directory("contents/persistence-" + to_lower(context["persistence"])), context);
-}
+render(Directory("contents/persistence-" + to_lower(context["persistence"])), context);
 
 render(Archetype("manifests"), context["project-name"], context + #{
   "language": ".Net",

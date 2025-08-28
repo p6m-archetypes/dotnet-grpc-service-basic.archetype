@@ -61,7 +61,7 @@ public class GracefulShutdownService : IHostedService
 
     private async Task PerformCleanupAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting cleanup operations...");{% if persistence !+ 'None'}
+        _logger.LogInformation("Starting cleanup operations...");{% if persistence != 'None' %}
 
         // Close database connections gracefully
         using var scope = _serviceProvider.CreateScope();

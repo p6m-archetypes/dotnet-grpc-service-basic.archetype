@@ -1,8 +1,8 @@
-using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
-using {{ PrefixName }}{{ SuffixName }}.Core;
+using System.Text.Json;{% if persistence != 'None' %}
+using Microsoft.EntityFrameworkCore;{% endif %}
+using {{ PrefixName }}{{ SuffixName }}.Core;{% if persistence != 'None' %}
 using {{ PrefixName }}{{ SuffixName }}.Persistence.Context;
-using {{ PrefixName }}{{ SuffixName }}.Persistence.Repositories;
+using {{ PrefixName }}{{ SuffixName }}.Persistence.Repositories;{% endif %}
 using {{ PrefixName }}{{ SuffixName }}.Server.Grpc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OpenTelemetry.Metrics;
@@ -26,6 +26,7 @@ public class Startup
         Configuration = configuration;
     }
     public IConfigurationRoot Configuration { get; }
+
     public void ConfigureServices(IServiceCollection services)
     {
         // Determine environment modes
@@ -75,8 +76,7 @@ public class Startup
 
         services.AddScoped<{{ PrefixName }}{{ SuffixName }}Core>();
         services.AddScoped<IValidationService, ValidationService>();
-        services.AddScoped<GlobalExceptionInterceptor>();
-
+        services.AddScoped<GlobalExceptionInterceptor>();{% if persistence != 'None' %}
 
         // Configure ephemeral database service if needed
         if (isEphemeral)
@@ -84,7 +84,7 @@ public class Startup
             services.Configure<EphemeralDatabaseOptions>(Configuration.GetSection(EphemeralDatabaseOptions.SectionName));
             services.AddSingleton<EphemeralDatabaseService>();
             services.AddHostedService<EphemeralDatabaseHostedService>();
-        }{% if Persistence != 'None'}
+        }
         
         // Configure database connection
         
@@ -148,13 +148,13 @@ public class Startup
         services.AddScoped<I{{ PrefixName }}Repository, {{ PrefixName }}Repository>();{% endif %}
         
         
-        // Register health check services{% if persistence != 'None'}
+        // Register health check services{% if persistence != 'None' %}
         services.AddScoped<DatabaseHealthCheck>();{% endif %}
         services.AddScoped<ServiceHealthCheck>();
         
         // Enhanced health checks with dependency validation
-        services.AddHealthChecks(){% if Persistence != 'None'}
-            .AddCheck<DatabaseHealthCheck>(
+        services.AddHealthChecks(){% if persistence != 'None' %}
+             .AddCheck<DatabaseHealthCheck>(
                 "database",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: ["ready", "db"]){% endif %}
@@ -241,9 +241,9 @@ public class Startup
         {
             using (var scope = app.Services.CreateScope())
             {
-                var servicesProvider = scope.ServiceProvider;
-                var context = servicesProvider.GetRequiredService<AppDbContext>();
-                var logger = servicesProvider.GetRequiredService<ILogger<Startup>>();
+                var servicesProvider = scope.ServiceProvider;{% if persistence != 'None' %}
+                var context = servicesProvider.GetRequiredService<AppDbContext>();{% endif %}
+                var logger = servicesProvider.GetRequiredService<ILogger<Startup>>();{% if persistence != 'None' %}
                 
                 if (isEphemeral)
                 {
@@ -272,7 +272,7 @@ public class Startup
                     logger.LogInformation("Running database migrations");
                     context.Database.Migrate();
                     logger.LogInformation("Database migrations completed");
-                }
+                }{% endif %}
             }
         }
         else
