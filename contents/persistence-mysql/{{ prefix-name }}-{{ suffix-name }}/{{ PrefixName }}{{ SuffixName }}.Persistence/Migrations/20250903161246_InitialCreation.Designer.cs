@@ -5,14 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace {{ PrefixName }}{{ SuffixName }}.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241024141140_InitialCreation")]
+    [Migration("20250903161246_InitialCreation")]
     partial class InitialCreation
     {
         /// <inheritdoc />
@@ -23,7 +22,8 @@ namespace {{ PrefixName }}{{ SuffixName }}.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
             modelBuilder.Entity("{{ PrefixName }}{{ SuffixName }}.Persistence.Entities.{{ PrefixName }}Entity", b =>
                 {
                     b.Property<Guid>("Id")

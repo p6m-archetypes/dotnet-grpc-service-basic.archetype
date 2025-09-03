@@ -25,49 +25,49 @@ public class MetricsService : IDisposable
 
         // Request metrics
         _requestsCounter = _meter.CreateCounter<long>(
-            "project_prefix_requests_total",
+            "{{ prefix_name }}_requests_total",
             description: "Total number of gRPC requests");
 
         _errorsCounter = _meter.CreateCounter<long>(
-            "project_prefix_errors_total",
+            "{{ prefix_name }}_errors_total",
             description: "Total number of request errors");
 
         _requestDuration = _meter.CreateHistogram<double>(
-            "project_prefix_request_duration_seconds",
+            "{{ prefix_name }}_request_duration_seconds",
             unit: "s",
             description: "Duration of gRPC requests in seconds");
 
         // Business metrics
         _entitiesCreatedCounter = _meter.CreateCounter<long>(
-            "project_prefix_entities_created_total",
+            "{{ prefix_name }}_entities_created_total",
             description: "Total number of entities created");
 
         _entitiesUpdatedCounter = _meter.CreateCounter<long>(
-            "project_prefix_entities_updated_total",
+            "{{ prefix_name }}_entities_updated_total",
             description: "Total number of entities updated");
 
         _entitiesDeletedCounter = _meter.CreateCounter<long>(
-            "project_prefix_entities_deleted_total",
+            "{{ prefix_name }}_entities_deleted_total",
             description: "Total number of entities deleted");
 
         // Connection metrics
         _activeConnectionsCounter = _meter.CreateUpDownCounter<long>(
-            "project_prefix_active_connections",
+            "{{ prefix_name }}_active_connections",
             description: "Number of active gRPC connections");
 
         // Database metrics
         _databaseOperationDuration = _meter.CreateHistogram<double>(
-            "project_prefix_database_operation_duration_seconds",
+            "{{ prefix_name }}_database_operation_duration_seconds",
             unit: "s",
             description: "Duration of database operations in seconds");
 
         // Error metrics
         _validationErrorsCounter = _meter.CreateCounter<long>(
-            "project_prefix_validation_errors_total",
+            "{{ prefix_name }}_validation_errors_total",
             description: "Total number of validation errors");
 
         _authorizationFailuresCounter = _meter.CreateCounter<long>(
-            "project_prefix_authorization_failures_total",
+            "{{ prefix_name }}_authorization_failures_total",
             description: "Total number of authorization failures");
 
     }

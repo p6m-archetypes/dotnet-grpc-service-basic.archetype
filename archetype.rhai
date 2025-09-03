@@ -27,6 +27,7 @@ context += render(Archetype("project-prompts"), ANSWERS + #{
 context += prompt("Persistence:", "persistence", #{
   type: Select([
     "PostgreSQL",
+    "MySQL",
     "None",
   ]),
   defaults_with: "PostgreSQL",
@@ -63,7 +64,7 @@ render(Directory("contents/base"), context);
 render(Directory("contents/persistence-" + to_lower(context["persistence"])), context);
 
 render(Archetype("manifests"), context["project-name"], context + #{
-  "language": ".Net",
+  "language": ".NET",
   "protocol": "gRPC",
 });
 

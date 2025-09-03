@@ -1,8 +1,8 @@
-using System.Text.Json;{% if persistence != 'None' %}
-using Microsoft.EntityFrameworkCore;{% endif %}
-using {{ PrefixName }}{{ SuffixName }}.Core;{% if persistence != 'None' %}
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using {{ PrefixName }}{{ SuffixName }}.Core;
 using {{ PrefixName }}{{ SuffixName }}.Persistence.Context;
-using {{ PrefixName }}{{ SuffixName }}.Persistence.Repositories;{% endif %}
+using {{ PrefixName }}{{ SuffixName }}.Persistence.Repositories;
 using {{ PrefixName }}{{ SuffixName }}.Server.Grpc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OpenTelemetry.Metrics;
@@ -76,7 +76,7 @@ public class Startup
 
         services.AddScoped<{{ PrefixName }}{{ SuffixName }}Core>();
         services.AddScoped<IValidationService, ValidationService>();
-        services.AddScoped<GlobalExceptionInterceptor>();{% if persistence != 'None' %}
+        services.AddScoped<GlobalExceptionInterceptor>();
 
         // Configure ephemeral database service if needed
         if (isEphemeral)
@@ -93,7 +93,7 @@ public class Startup
         {
             if (isEphemeral)
             {
-                // Use Testcontainers PostgreSQL for ephemeral environment
+                // Use Testcontainers MySQL for ephemeral environment
                 var ephemeralDbService = serviceProvider.GetRequiredService<EphemeralDatabaseService>();
                 var connectionString = ephemeralDbService.GetConnectionString();
                 
@@ -102,14 +102,15 @@ public class Startup
                     throw new InvalidOperationException("Ephemeral database connection string is not available. Ensure the EphemeralDatabaseService has been started.");
                 }
                 
-                options.UseNpgsql(connectionString, npgsqlOptions =>
+                var serverVersion = new MySqlServerVersion(new Version(8, 0));
+                options.UseMySql(connectionString, serverVersion, mysqlOptions =>
                 {
-                    npgsqlOptions.EnableRetryOnFailure(
+                    mysqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 3,
                         maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorCodesToAdd: null);
+                        errorNumbersToAdd: null);
                     
-                    npgsqlOptions.CommandTimeout(
+                    mysqlOptions.CommandTimeout(
                         int.Parse(Configuration["Database:CommandTimeout"] ?? "30"));
                 });
                 
@@ -119,16 +120,17 @@ public class Startup
             }
             else
             {
-                // Use regular PostgreSQL connection for production
+                // Use regular MySQL connection for production
                 var connectionString = Configuration.GetConnectionString("DefaultConnection");
-                options.UseNpgsql(connectionString, npgsqlOptions =>
+                var serverVersion = new MySqlServerVersion(new Version(8, 0));
+                options.UseMySql(connectionString, serverVersion, mysqlOptions =>
                 {
-                    npgsqlOptions.EnableRetryOnFailure(
+                    mysqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 3,
                         maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorCodesToAdd: null);
+                        errorNumbersToAdd: null);
                     
-                    npgsqlOptions.CommandTimeout(
+                    mysqlOptions.CommandTimeout(
                         int.Parse(Configuration["Database:CommandTimeout"] ?? "30"));
                 });
             }
@@ -145,19 +147,19 @@ public class Startup
             options.EnableSensitiveDataLogging(false); // Disable in production
         });
 
-        services.AddScoped<I{{ PrefixName }}Repository, {{ PrefixName }}Repository>();{% endif %}
+        services.AddScoped<I{{ PrefixName }}Repository, {{ PrefixName }}Repository>();
         
         
-        // Register health check services{% if persistence != 'None' %}
-        services.AddScoped<DatabaseHealthCheck>();{% endif %}
+        // Register health check services
+        services.AddScoped<DatabaseHealthCheck>();
         services.AddScoped<ServiceHealthCheck>();
         
         // Enhanced health checks with dependency validation
-        services.AddHealthChecks(){% if persistence != 'None' %}
+        services.AddHealthChecks()
              .AddCheck<DatabaseHealthCheck>(
                 "database",
                 failureStatus: HealthStatus.Unhealthy,
-                tags: ["ready", "db"]){% endif %}
+                tags: ["ready", "db"])
             .AddCheck<ServiceHealthCheck>(
                 "services",
                 failureStatus: HealthStatus.Unhealthy,
@@ -169,7 +171,7 @@ public class Startup
         // Enhanced OpenTelemetry configuration with custom metrics
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(
-                Configuration["Application:Name"] ?? "project-prefix-project-suffix",
+                Configuration["Application:Name"] ?? "{{ prefix-name }}-{{ suffix-name }}",
                 Configuration["Application:Version"] ?? "1.0.0",
                 serviceInstanceId: Environment.MachineName
             ))
@@ -233,52 +235,62 @@ public class Startup
         // Determine environment modes (same as in ConfigureServices)
         bool isEphemeral = Configuration["ASPNETCORE_ENVIRONMENT"] == "Ephemeral" || 
                           Configuration["SPRING_PROFILES_ACTIVE"]?.Contains("ephemeral") == true;
-        bool enableMigrations = bool.Parse(Configuration["Database:EnableMigrations"] ?? "true");
+        
+        // Check if migrations should run:
+        // 1. Always run in ephemeral mode
+        // 2. Run if MIGRATE environment variable is set to "true"
+        // 3. Otherwise check the config setting (defaults to false for safety)
+        bool shouldRunMigrations = isEphemeral || 
+                                  Configuration["MIGRATE"]?.Equals("true", StringComparison.OrdinalIgnoreCase) == true ||
+                                  (Configuration["MIGRATE"] == null && bool.Parse(Configuration["Database:EnableMigrations"] ?? "false"));
+        
         bool dropCreateDatabase = bool.Parse(Configuration["Database:DropCreateDatabase"] ?? "false");
         
         // Handle database setup based on environment
-        if (enableMigrations)
+        if (shouldRunMigrations)
         {
             using (var scope = app.Services.CreateScope())
             {
-                var servicesProvider = scope.ServiceProvider;{% if persistence != 'None' %}
-                var context = servicesProvider.GetRequiredService<AppDbContext>();{% endif %}
-                var logger = servicesProvider.GetRequiredService<ILogger<Startup>>();{% if persistence != 'None' %}
+                var servicesProvider = scope.ServiceProvider;
+                var context = servicesProvider.GetRequiredService<AppDbContext>();
+                var logger = servicesProvider.GetRequiredService<ILogger<Startup>>();
                 
                 if (isEphemeral)
                 {
-                    // For ephemeral mode, ensure clean database state
-                    logger.LogInformation("Setting up ephemeral database schema...");
+                    // For ephemeral mode, always run migrations to ensure schema is up to date
+                    logger.LogInformation("Running database migrations for ephemeral environment...");
                     
                     try
                     {
                         if (dropCreateDatabase)
                         {
                             context.Database.EnsureDeleted();
+                            logger.LogInformation("Database dropped successfully");
                         }
                         
-                        var created = context.Database.EnsureCreated();
-                        logger.LogInformation("Database schema created successfully");
+                        // Use migrations for ephemeral mode too for consistency
+                        context.Database.Migrate();
+                        logger.LogInformation("Database migrations completed successfully for ephemeral environment");
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex, "Error during database schema creation");
+                        logger.LogError(ex, "Error during database migration in ephemeral mode");
                         throw;
                     }
                 }
                 else
                 {
                     // For production/development, use migrations
-                    logger.LogInformation("Running database migrations");
+                    logger.LogInformation("Running database migrations (MIGRATE={Migrate})", Configuration["MIGRATE"]);
                     context.Database.Migrate();
-                    logger.LogInformation("Database migrations completed");
-                }{% endif %}
+                    logger.LogInformation("Database migrations completed successfully");
+                }
             }
         }
         else
         {
             var logger = app.Services.GetRequiredService<ILogger<Startup>>();
-            logger.LogWarning("Database setup skipped - enableMigrations: {EnableMigrations}", enableMigrations);
+            logger.LogWarning("Database migrations skipped - MIGRATE not set to 'true' and not in ephemeral mode");
         }
 
         // Configure the HTTP request pipeline.
