@@ -1,69 +1,69 @@
-using {{ PrefixName }}{{ SuffixName }}.API;
-using {{ PrefixName }}{{ SuffixName }}.Core.Services;
+using {{ PrefixName}}{{ SuffixName }}.API;
+using {{ PrefixName}}{{ SuffixName }}.Core.Services;
 using Microsoft.Extensions.Logging;
 
-namespace {{ PrefixName }}{{ SuffixName }}.Core;
+namespace {{ PrefixName}}{{ SuffixName }}.Core;
 
-public class {{ PrefixName }}{{ SuffixName }}Core : I{{ PrefixName }}{{ SuffixName }}
+public class {{ PrefixName}}{{ SuffixName }}Core : I{{ PrefixName}}{{ SuffixName }}
 {
     private readonly IValidationService _validationService;
-    private readonly ILogger<{{ PrefixName }}{{ SuffixName }}Core> _logger;
+    private readonly ILogger<{{ PrefixName}}{{ SuffixName }}Core> _logger;
        
-    public {{ PrefixName }}{{ SuffixName }}Core(
+    public {{ PrefixName}}{{ SuffixName }}Core(
         IValidationService validationService,
-        ILogger<{{ PrefixName }}{{ SuffixName }}Core> logger) 
+        ILogger<{{ PrefixName}}{{ SuffixName }}Core> logger) 
     {
         _validationService = validationService;
         _logger = logger;
     }
 
-    public async Task<Create{{ PrefixName }}Response> Create{{ PrefixName }}({{ PrefixName }}Dto request)
+    public Task<CreateExampleResponse> CreateExample(ExampleDto request)
     {
-          return new Create{{ PrefixName }}Response
+          return Task.FromResult(new CreateExampleResponse
           {
-              {{ PrefixName }} = new {{ PrefixName }}Dto
+              Example = new ExampleDto
               {
                   Id = request.Id,
                   Name = request.Name
               }
-          };
+          });
     }
 
-    public async Task<Get{{ PrefixName }}sResponse> Get{{ PrefixName }}s(Get{{ PrefixName }}sRequest request)
+    public Task<GetExamplesResponse> GetExamples(GetExamplesRequest request)
     {
-        return new Get{{ PrefixName }}sResponse
+        return Task.FromResult(new GetExamplesResponse
         {
             TotalElements = 0,
             TotalPages = 0,
-        };
+        });
     }
 
-    public async Task<Get{{ PrefixName }}Response> Get{{ PrefixName }}(Get{{ PrefixName }}Request request)
+    public Task<GetExampleResponse> GetExample(GetExampleRequest request)
     { 
-        return new Get{{ PrefixName }}Response
+        return Task.FromResult(new GetExampleResponse
         {
-            {{ PrefixName }} = new {{ PrefixName }}Dto
+            Example = new ExampleDto
             {
                 Id = "ExampleId",
                 Name = "ExampleName",
             }
-        };
+        });
     }
 
-    public async Task<Update{{ PrefixName }}Response> Update{{ PrefixName }}({{ PrefixName }}Dto {{ prefixName }})
+    public Task<UpdateExampleResponse> UpdateExample(ExampleDto example)
     {
-        return new Update{{ PrefixName }}Response
+        return Task.FromResult(new UpdateExampleResponse
         {
-            {{ PrefixName }} = new {{ PrefixName }}Dto
+            Example = new ExampleDto
             {
-                Id = {{ prefixName }}.Id,
-                Name = {{ prefixName }}.Name
+                Id = example.Id,
+                Name = example.Name
             }
-        };
+        });
     }
 
-    public async Task<Delete{{ PrefixName }}Response> Delete{{ PrefixName }}(Delete{{ PrefixName }}Request request)
+    public Task<DeleteExampleResponse> DeleteExample(DeleteExampleRequest request)
     {
-        return new Delete{{ PrefixName }}Response { Deleted = false };
+        return Task.FromResult(new DeleteExampleResponse { Deleted = false });
     }
 }

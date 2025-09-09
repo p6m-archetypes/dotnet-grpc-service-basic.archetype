@@ -1,4 +1,5 @@
-using {{ PrefixName }}{{ SuffixName }}.Server.Grpc;
+
+using {{ PrefixName}}{{ SuffixName }}.Server.Grpc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -6,13 +7,15 @@ using OpenTelemetry.Trace;
 using OpenTelemetry;
 using CorrelationId.DependencyInjection;
 using CorrelationId;
-using {{ PrefixName }}{{ SuffixName }}.Core.Services;
-using {{ PrefixName }}{{ SuffixName }}.Server.Services;
-using {{ PrefixName }}{{ SuffixName }}.Server.Interceptors;
-using {{ PrefixName }}{{ SuffixName }}.Server.HealthChecks;
+using {{ PrefixName}}{{ SuffixName }}.Core;
+using {{ PrefixName}}{{ SuffixName }}.Core.Services;
+using {{ PrefixName}}{{ SuffixName }}.Server.Services;
+using {{ PrefixName}}{{ SuffixName }}.Server.Interceptors;
+using {{ PrefixName}}{{ SuffixName }}.Server.HealthChecks;
+using System.Text.Json;
 
 
-namespace {{ PrefixName }}{{ SuffixName }}.Server;
+namespace {{ PrefixName}}{{ SuffixName }}.Server;
 
 public class Startup
 {
@@ -69,7 +72,7 @@ public class Startup
         // Add graceful shutdown service
         services.AddHostedService<Services.GracefulShutdownService>();
 
-        services.AddScoped<{{ PrefixName }}{{ SuffixName }}Core>();
+        services.AddScoped<{{ PrefixName}}{{ SuffixName }}Core>();
         services.AddScoped<IValidationService, ValidationService>();
         services.AddScoped<GlobalExceptionInterceptor>();
         
@@ -90,7 +93,7 @@ public class Startup
         // Enhanced OpenTelemetry configuration with custom metrics
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService(
-                Configuration["Application:Name"] ?? "{{ prefix-name }}-{{ suffix-name }}",
+                Configuration["Application:Name"] ?? "example-service",
                 Configuration["Application:Version"] ?? "1.0.0",
                 serviceInstanceId: Environment.MachineName
             ))
@@ -98,7 +101,7 @@ public class Startup
             {
                 metrics
                     .AddHttpClientInstrumentation()
-                    .AddMeter("{{ PrefixName }}{{ SuffixName }}"); // Add our custom metrics
+                    .AddMeter("{{ PrefixName}}{{ SuffixName }}"); // Add our custom metrics
                 
                 // Export to multiple endpoints
                 if (Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] != null)
@@ -179,9 +182,9 @@ public class Startup
         // Note: Authentication happens at API Gateway, authorization in gRPC interceptor
         
         app.MapGrpcReflectionService().AllowAnonymous();
-        app.MapGrpcService<{{ PrefixName }}{{ SuffixName }}GrpcImpl>();
+        app.MapGrpcService<{{ PrefixName}}{{ SuffixName }}GrpcImpl>();
         app.MapControllers();
-        app.MapGet("/", () => "{{ PrefixName }}{{ SuffixName }}");
+        app.MapGet("/", () => "{{ PrefixName}}{{ SuffixName }}");
 
         app.MapPrometheusScrapingEndpoint("/metrics");
         
@@ -220,15 +223,11 @@ public class Startup
             Predicate = check => check.Tags.Contains("ready")
         });
 
-        // Display ephemeral database connection info after server is ready
+        // Ephemeral mode logging - persistence layer has been removed
         if (isEphemeral)
         {
-            var appLifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-            appLifetime.ApplicationStarted.Register(() =>
-            {
-                var ephemeralDbService = app.Services.GetRequiredService<EphemeralDatabaseService>();
-                ephemeralDbService.DisplayConnectionInfo();
-            });
+            var logger = app.Services.GetRequiredService<ILogger<Startup>>();
+            logger.LogInformation("Running in ephemeral mode (persistence layer removed)");
         }
     }
 }

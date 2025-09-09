@@ -55,6 +55,8 @@ context["PERSISTENCE_UUID"] = "{" + uuid().to_upper() + "}";
 context["SERVER_UUID"] = "{" + uuid().to_upper() + "}";
 context["IT_UUID"] = "{" + uuid().to_upper() + "}";
 context["UT_UUID"] = "{" + uuid().to_upper() + "}";
+context["DOTNET_VERSION"] = "8.0.11";
+context["EXTENSIONS_VERSION"] = "8.0.3";
 
 if switch_enabled("debug-context") {
     log(Info, `${archetect::archetype::description()} (${context["project-name"]}) Context:`);
@@ -63,6 +65,9 @@ if switch_enabled("debug-context") {
 
 render(Directory("contents/base"), context);
 render(Directory("contents/persistence-" + to_lower(context["persistence"])), context);
+if context["persistence"] != "None" {
+  render(Directory("contents/persistence-common"), context);
+}
 
 render(Archetype("manifests"), context["project-name"], context + #{
   "language": ".NET",
