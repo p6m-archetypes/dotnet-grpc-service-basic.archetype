@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace {{ PrefixName}}{{ SuffixName }}.Core;
 
-public class {{ PrefixName}}{{ SuffixName }}Core : I{{ PrefixName}}{{ SuffixName }}
+public class {{ PrefixName }}{{ SuffixName }}Core : I{{ PrefixName }}{{ SuffixName }}
 {
     private readonly IValidationService _validationService;
     private readonly ILogger<{{ PrefixName}}{{ SuffixName }}Core> _logger;
@@ -17,11 +17,11 @@ public class {{ PrefixName}}{{ SuffixName }}Core : I{{ PrefixName}}{{ SuffixName
         _logger = logger;
     }
 
-    public Task<CreateExampleResponse> CreateExample(ExampleDto request)
+    public Task<Create{{ PrefixName }}Response> Create{{ PrefixName }}({{ PrefixName }}Dto request)
     {
-          return Task.FromResult(new CreateExampleResponse
+          return Task.FromResult(new Create{{ PrefixName }}Response
           {
-              Example = new ExampleDto
+              {{ PrefixName }} = new {{ PrefixName }}Dto
               {
                   Id = request.Id,
                   Name = request.Name
@@ -29,41 +29,41 @@ public class {{ PrefixName}}{{ SuffixName }}Core : I{{ PrefixName}}{{ SuffixName
           });
     }
 
-    public Task<GetExamplesResponse> GetExamples(GetExamplesRequest request)
+    public Task<Get{{ PrefixName }}sResponse> Get{{ PrefixName }}s(Get{{ PrefixName }}sRequest request)
     {
-        return Task.FromResult(new GetExamplesResponse
+        return Task.FromResult(new Get{{ PrefixName }}sResponse
         {
             TotalElements = 0,
             TotalPages = 0,
         });
     }
 
-    public Task<GetExampleResponse> GetExample(GetExampleRequest request)
+    public Task<Get{{ PrefixName }}Response> Get{{ PrefixName }}(Get{{ PrefixName }}Request request)
     { 
-        return Task.FromResult(new GetExampleResponse
+        return Task.FromResult(new Get{{ PrefixName }}Response
         {
-            Example = new ExampleDto
+            {{ PrefixName }} = new {{ PrefixName }}Dto
             {
-                Id = "ExampleId",
-                Name = "ExampleName",
+                Id = "{{ PrefixName }}Id",
+                Name = "{{ PrefixName }}Name",
             }
         });
     }
 
-    public Task<UpdateExampleResponse> UpdateExample(ExampleDto example)
+    public Task<Update{{ PrefixName }}Response> Update{{ PrefixName }}({{ PrefixName }}Dto {{ prefixName }})
     {
-        return Task.FromResult(new UpdateExampleResponse
+        return Task.FromResult(new Update{{ PrefixName }}Response
         {
-            Example = new ExampleDto
+            {{ PrefixName }} = new {{ PrefixName }}Dto
             {
-                Id = example.Id,
-                Name = example.Name
+                Id = {{ prefixName }}.Id,
+                Name = {{ prefixName }}.Name
             }
         });
     }
 
-    public Task<DeleteExampleResponse> DeleteExample(DeleteExampleRequest request)
+    public Task<Delete{{ PrefixName }}Response> Delete{{ PrefixName }}(Delete{{ PrefixName }}Request request)
     {
-        return Task.FromResult(new DeleteExampleResponse { Deleted = false });
+        return Task.FromResult(new Delete{{ PrefixName }}Response { Deleted = false });
     }
 }

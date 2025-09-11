@@ -18,7 +18,7 @@ project's root.
 
 When rendering the archetype, you'll be prompted for the following values:
 
-| Property          | Description                                                                                                         | Example               |
+| Property          | Description                                                                                                         | {{ PrefixName }}               |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | `project`         | General name that represents the service domain that is used to set the entity, service, and RPC stub names.        | Shopping Cart         |
 | `suffix`          | Used in conjunction with `project` to set package names.                                                            | Service               |

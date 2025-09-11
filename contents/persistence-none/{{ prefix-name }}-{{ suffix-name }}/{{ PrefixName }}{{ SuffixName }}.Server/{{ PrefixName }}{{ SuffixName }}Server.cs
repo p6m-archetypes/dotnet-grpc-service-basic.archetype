@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using OpenTelemetry.Logs;
 using Serilog;
+using Serilog.Formatting.Compact;
+using Serilog.Enrichers.CorrelationId;
 using {{ PrefixName}}{{ SuffixName }}.Server.Services;
 
 namespace {{ PrefixName}}{{ SuffixName }}.Server;
@@ -21,9 +23,53 @@ public class {{ PrefixName}}{{ SuffixName }}Server
             options.ShutdownTimeout = TimeSpan.FromSeconds(30);
         });
         
-        builder.Host.UseSerilog((content, loggerConfig) =>
-            loggerConfig.ReadFrom.Configuration(builder.Configuration)
-        );
+        builder.Host.UseSerilog((context, loggerConfig) =>
+        {
+            // Check if structured logging is requested
+            var useStructuredLogging = Environment.GetEnvironmentVariable("LOGGING_STRUCTURED") == "true";
+            
+            // Configure base settings from configuration (minimum levels, enrichers, etc.)
+            var config = builder.Configuration;
+            
+            // Apply minimum levels
+            loggerConfig.MinimumLevel.Information();
+            if (config.GetSection("Serilog:MinimumLevel:Override").Exists())
+            {
+                foreach (var overrideConfig in config.GetSection("Serilog:MinimumLevel:Override").GetChildren())
+                {
+                    var levelValue = overrideConfig.Value;
+                    if (Enum.TryParse<Serilog.Events.LogEventLevel>(levelValue, out var level))
+                    {
+                        loggerConfig.MinimumLevel.Override(overrideConfig.Key, level);
+                    }
+                }
+            }
+            
+            // Apply enrichers
+            loggerConfig
+                .Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .Enrich.WithThreadId()
+                .Enrich.WithCorrelationId()
+                .Enrich.WithEnvironmentName()
+                .Enrich.WithProperty("Application", config["Application:Name"] ?? "{{ prefix-name }}-{{ suffix-name }}")
+                .Enrich.WithProperty("Version", config["Application:Version"] ?? "1.0.0")
+                .Enrich.WithProperty("Environment", config["Application:Environment"] ?? "Production");
+            
+            // Configure output based on LOGGING_STRUCTURED environment variable
+            if (useStructuredLogging)
+            {
+                // Use structured JSON logging
+                loggerConfig.WriteTo.Console(new Serilog.Formatting.Compact.CompactJsonFormatter());
+            }
+            else
+            {
+                // Use line-based logging with a readable format
+                loggerConfig.WriteTo.Console(
+                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}"
+                );
+            }
+        });
         
         builder.Logging.AddOpenTelemetry(logging => logging.AddOtlpExporter());
 

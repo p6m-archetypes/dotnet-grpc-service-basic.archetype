@@ -193,7 +193,7 @@ public class AuthorizationInterceptor : Interceptor
     private static string GetOperationFromMethod(string method)
     {
         // Extract operation from gRPC method name
-        // Examples: /package.service/CreateEntity -> create
+        // {{ PrefixName }}s: /package.service/CreateEntity -> create
         var methodName = method.Split('/').LastOrDefault()?.ToLowerInvariant() ?? "unknown";
         
         return methodName switch
