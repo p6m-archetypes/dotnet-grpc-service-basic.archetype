@@ -79,7 +79,7 @@ render(Archetype("manifests"), context["project-name"], context + #{
 //
 if switch_enabled("zip") {
     zip(context["project-name"], render("{{ project-name }}.zip", context));
-
+}
 if switch_enabled("tarball") {
     tar_gz(context["project-name"], render("{{ project-name }}.tar.gz", context));
 }
