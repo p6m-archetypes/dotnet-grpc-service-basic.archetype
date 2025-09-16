@@ -25,13 +25,13 @@ context += render(Archetype("project-prompts"), ANSWERS + #{
 }, render_settings);
 
 context += prompt("Persistence:", "persistence", #{
-  type: Select([
-    "PostgreSQL",
-    "MySQL",
-    "MSSQL",
-    "None",
-  ]),
-  defaults_with: "PostgreSQL",
+    type: Select([
+        "PostgreSQL",
+        "MySQL",
+        "MSSQL",
+        "None",
+    ]),
+    defaults_with: "PostgreSQL",
 });
 
 context += prompt("Artifactory Host:", "artifactory-host", #{
@@ -91,8 +91,8 @@ if switch_enabled("git-init") || switch_enabled("git-publish") {
     git_remote_add(context["project-name"], "origin", render("https://github.com/{{ org-solution-name }}/{{ project-name }}.git", context));
 
     if switch_enabled("git-publish") {
-      gh_repo_create(render("{{ org-solution-name }}/{{ project-name }}", context), Private);
-      git_push(context["project-name"], "origin", "main");
+        gh_repo_create(render("{{ org-solution-name }}/{{ project-name }}", context), Private);
+        git_push(context["project-name"], "origin", "main");
     }
 } else {
     display();
