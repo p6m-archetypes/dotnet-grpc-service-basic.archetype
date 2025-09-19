@@ -15,10 +15,10 @@ namespace {{ PrefixName }}{{ SuffixName }}.Persistence.Migrations
                 name: "{{ prefix_name }}",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    modified = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    name = table.Column<string>(type: "longtext", nullable: false),
+                    created = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    modified = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
                 constraints: table =>
                 {
