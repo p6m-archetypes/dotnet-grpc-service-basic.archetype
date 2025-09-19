@@ -49,18 +49,30 @@ public class EphemeralDatabaseService : IDisposable
             // Wait for the database to be ready to accept connections
             await WaitForDatabaseReadyAsync(cancellationToken);
             
-            var connectionString = _container.GetConnectionString();
+            var baseConnectionString = _container.GetConnectionString();
             var host = _container.Hostname;
             var port = _container.GetMappedPublicPort(MsSqlBuilder.MsSqlPort);
             var database = _options.DatabaseName;
             var username = _options.Username;
             var password = _options.Password;
+
+            // Create the database if it doesn't exist and it's not master
+            if (database != "master" && !string.IsNullOrEmpty(database))
+            {
+                await CreateDatabaseIfNotExistsAsync(baseConnectionString, database, cancellationToken);
+                // Update connection string to use the created database
+                var builder = new SqlConnectionStringBuilder(baseConnectionString)
+                {
+                    InitialCatalog = database
+                };
+                baseConnectionString = builder.ConnectionString;
+            }
             
             _logger.LogInformation(
                 "SQL Server container started successfully. Host: {Host}, Port: {Port}, Database: {Database}",
                 host, port, database);
             
-            return connectionString;
+            return baseConnectionString;
         }
         catch (Exception ex)
         {
@@ -151,6 +163,41 @@ public class EphemeralDatabaseService : IDisposable
         }
         
         throw new TimeoutException($"SQL Server container did not become ready after {maxAttempts} attempts");
+    }
+
+    /// <summary>
+    /// Creates a database if it doesn't exist
+    /// </summary>
+    private async Task CreateDatabaseIfNotExistsAsync(string connectionString, string databaseName, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync(cancellationToken);
+
+            var checkDbCommand = connection.CreateCommand();
+            checkDbCommand.CommandText = $"SELECT COUNT(*) FROM sys.databases WHERE name = @dbName";
+            checkDbCommand.Parameters.AddWithValue("@dbName", databaseName);
+
+            var dbExists = (int)await checkDbCommand.ExecuteScalarAsync(cancellationToken) > 0;
+
+            if (!dbExists)
+            {
+                var createDbCommand = connection.CreateCommand();
+                createDbCommand.CommandText = $"CREATE DATABASE [{databaseName}]";
+                await createDbCommand.ExecuteNonQueryAsync(cancellationToken);
+                _logger.LogInformation("Created database: {Database}", databaseName);
+            }
+            else
+            {
+                _logger.LogDebug("Database already exists: {Database}", databaseName);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create database: {Database}", databaseName);
+            throw;
+        }
     }
     
     /// <summary>
