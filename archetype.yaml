@@ -1,8 +1,8 @@
 ---
-description: ".NET gRPC Service, Namespaced, Modular Microservice"
-authors: ["Jimmie Fulton <jimmie@ybor.ai>"]
+description: ".NET gRPC Service, Modular"
+authors: ["Ybor Technology"]
 languages: ["C#"]
-frameworks: [".NET", "Entities Framework", "gRPC"]
+frameworks: [".NET", "Entity Framework", "gRPC"]
 tags: ["Modular", "Service", "Microservice", "gRPC"]
 
 requires:
