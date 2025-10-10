@@ -154,10 +154,31 @@ For complete property relationships, see [archetype.yaml](./archetype.yaml).
 
 This archetype is ideal for:
 
-1. **Backend Microservices**: Building internal services with high-performance RPC communication
-2. **Data-Driven Services**: Services requiring relational database persistence with ORM
-3. **Platform Services**: Core platform services deployed in Kubernetes environments
-4. **Inter-Service Communication**: Services requiring efficient, type-safe communication between microservices
+1. **Internal Microservices**: High-performance service-to-service communication within a service mesh
+   - Federated by GraphQL or REST gateways for frontend consumption
+   - Direct gRPC client communication from other backend services
+   - Not typically exposed directly to frontend applications
+
+2. **Platform Services**: Core domain services (products, users, orders, inventory)
+   - Strong typing with Protocol Buffers ensures API contracts
+   - Client stubs published for consumption by other services
+   - Often aggregated by GraphQL domain gateways for unified APIs
+
+3. **Data-Intensive Services**: Services requiring high throughput and low latency
+   - Efficient binary serialization with Protocol Buffers
+   - Streaming support for real-time data pipelines
+   - Ideal when performance is more important than HTTP compatibility
+
+4. **Polyglot Architectures**: When clients use multiple programming languages
+   - Proto files generate clients for .NET, Java, Python, Go, Node.js
+   - Consistent API contracts across language boundaries
+   - Language-agnostic service definitions
+
+**Architectural Note**: gRPC services are typically internal and consumed by:
+- GraphQL gateways (federation/BFF pattern)
+- REST gateways (HTTP-to-gRPC proxy)
+- Other gRPC services (direct service-to-service)
+- Backend applications requiring high performance
 
 ## 📚 What's Inside
 
